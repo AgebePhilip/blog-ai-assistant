@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 
-const API_URL = process.env.OPEN_URL;
-const API_KEY = process.env.OPENAI_API_KEY;
+const API_KEY ='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';
+const API_URL = 'https://api.openai.com/v1/chat/completions';
 
 
 const headers = {
@@ -80,3 +80,4 @@ export async function suggestKeywords(content) {
   console.log('Suggesting keywords...');
   return await callOpenAI(`Suggest 5 relevant SEO keywords for the following blog content:\n\n${content}`);
 }
+                                                                                                                                                                                                                                                                                                                                                                                          
