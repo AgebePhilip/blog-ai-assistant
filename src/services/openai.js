@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-// Directly assigning API keys instead of using environment variables
-const API_KEY = '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';
-const API_URL = 'https://api.openai.com/v1/chat/completions';
+
+const API_URL = process.env.OPEN_URL;
+const API_KEY = process.env.OPENAI_API_KEY;
+
 
 const headers = {
   'Content-Type': 'application/json',
