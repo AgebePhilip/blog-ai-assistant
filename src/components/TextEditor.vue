@@ -1,6 +1,10 @@
 <template>
   <div class="container mt-5">
-    <h2 class="text-center text-dark">Blog Editor</h2>
+    <h2 class="text-center text-dark">AI Powered Text Editor</h2>
+    <p class="text-center text-muted">
+  Draft blog posts and get instant AI-powered title, summary, and keyword suggestions.
+</p>
+
     
     <div class="mb-4">
       <input v-model="title" 
