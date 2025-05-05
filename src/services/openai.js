@@ -1,83 +1,54 @@
 import axios from 'axios';
 
-
-const API_URL = process.env.VUE_APP_BASE_URL;
-const API_KEY = process.env.VUE_APP_OPEN_API_KEY;
-
-
+const API_URL = process.env.API_KEY;
+const API_KEY = process.env.API_URL;
 
 const headers = {
   'Content-Type': 'application/json',
   Authorization: `Bearer ${API_KEY}`,
 };
 
-// Max retry attempts to avoid infinite looping
 const MAX_RETRIES = 3;
 
-async function callOpenAI(prompt, retries = 0) {
+async function callOpenAI(prompt, setStatus, retries = 0) {
+  if (!prompt || prompt.trim() === '') {
+    setStatus?.('Empty content. Skipping request.');
+    return 'No content provided.';
+  }
+
   const body = {
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4.1',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.7,
   };
 
   try {
-    console.log('Sending request to OpenAI API...');
-    console.log('Request body:', JSON.stringify(body, null, 2));  // Log the request body
-
-    // Making the request to OpenAI API
+    setStatus?.('Sending request to OpenAI API...');
     const response = await axios.post(API_URL, body, { headers });
-
-    // Log response status and headers for debugging
-    console.log('Response Status:', response.status);
-    console.log('Response Headers:', response.headers);
-
-    // Log the successful API response content
-    console.log('API Response:', response.data);
-    
     return response.data.choices[0].message.content.trim();
   } catch (error) {
-    if (error.response) {
-      // Log the error response
-      console.error('Error response:', error.response);
-
-      // Handle rate limit error (status code 429)
-      if (error.response.status === 429) {
-        if (retries >= MAX_RETRIES) {
-          console.log('Maximum retries reached. Aborting...');
-          return 'Rate limit exceeded. Please try again later.';
-        }
-        
-        console.log('Rate limit exceeded. Retrying...');
-        console.log('Rate limit reset time:', error.response.headers['x-ratelimit-reset']);
-        console.log('Rate limit remaining:', error.response.headers['x-ratelimit-remaining']);
-        
-        // Retry after a delay (5 seconds)
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        return await callOpenAI(prompt, retries + 1);  // Retry the request
-      }
-    } else {
-      // Log unexpected errors (e.g., network issues, etc.)
-      console.error('Unexpected error:', error);
+    if (error.response && error.response.status === 429 && retries < MAX_RETRIES) {
+      setStatus?.(`Rate limited. Retrying... (${retries + 1})`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * (2 ** retries)));
+      return await callOpenAI(prompt, setStatus, retries + 1);
     }
-    throw error; // Rethrow the error to propagate it
+
+    setStatus?.('An error occurred.');
+    return 'Something went wrong.';
   }
 }
 
-// Function to generate title suggestion
-export async function getTitleSuggestion(content) {
-  console.log('Generating title suggestion...');
-  return await callOpenAI(`Generate a catchy blog post title for the following content:\n\n${content}`);
+export async function getTitleSuggestion(content, setStatus) {
+  setStatus?.('Generating title suggestion...');
+  return await callOpenAI(`Generate a catchy blog post title:\n\n${content}`, setStatus);
 }
 
-// Function to summarize blog content
-export async function summarizeText(content) {
-  console.log('Summarizing content...');
-  return await callOpenAI(`Summarize the following blog content:\n\n${content}`);
+export async function summarizeText(content, setStatus) {
+  setStatus?.('Summarizing content...');
+  return await callOpenAI(`Summarize the blog content:\n\n${content}`, setStatus);
 }
 
-// Function to suggest keywords
-export async function suggestKeywords(content) {
-  console.log('Suggesting keywords...');
-  return await callOpenAI(`Suggest 5 relevant SEO keywords for the following blog content:\n\n${content}`);
+export async function suggestKeywords(content, setStatus) {
+  setStatus?.('Suggesting keywords...');
+  return await callOpenAI(`Suggest 5 relevant SEO keywords for the content:\n\n${content}`, setStatus);
 }
