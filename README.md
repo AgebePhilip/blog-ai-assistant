@@ -26,5 +26,9 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 
 ### Screenshoot of the Demo app
-screent shoot of the demo
+
 ![alt text](image-1.png)
+
+
+### note on how AI can improve content creation
+AI tools can significantly boost content creators’ productivity by generating compelling titles, summarizing long posts for better engagement, and suggesting relevant keywords for SEO. This allows writers to focus on creativity while leveraging AI for optimization and brainstorming
